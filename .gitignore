@@ -1,0 +1,8 @@
+## vs and build files
+.vs/
+out/
+
+## render outputs
+*.png
+*.jpg
+*.exr
