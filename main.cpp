@@ -17,9 +17,12 @@
 */
 
 #include "engine/engine.h"
+#include "math/linearAlgebra.h"
 
 int main()
 {
+    MATH::vec2 v1(0.0, 0.0);
+    std::cout << &v1.x << " " << &v1.u << std::endl;
 	Engine g_Engine;
 	g_Engine.init();
 	g_Engine.run();

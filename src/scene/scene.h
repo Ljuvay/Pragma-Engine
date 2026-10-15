@@ -4,8 +4,8 @@
 class Scene
 {
 public:
-	Scene();
-	~Scene();
+	Scene() {}
+	~Scene() {}
 
 private:
 
@@ -13,17 +13,20 @@ private:
 
 class SphereScene : public Scene
 {
-
+public:
+	SphereScene(){}
 };
 
 class MandelBulbScene : public Scene
 {
-
+public:
+	MandelBulbScene(){}
 };
 
 class KochSnowFlakeScene : public Scene
 {
-
+public:
+	KochSnowFlakeScene(){}
 };
 
 #endif // !SCENE_H

@@ -1,7 +1,5 @@
 #include "sceneManager.h"
 
-SceneManager::SceneManager() {}
-
 void SceneManager::init()
 {
 	registerScene<SphereScene>("SphereScene");
