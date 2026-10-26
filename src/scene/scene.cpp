@@ -28,12 +28,22 @@ MATH::dvec3 SphereScene::grad(const MATH::dvec3& p) const
 
 MATH::dvec4 SphereScene::shade(const MATH::dvec3& p, const hitInfo& hI) const
 {
-	return MATH::dvec4(1.0, 0.0, 0.0, 1.0);
+	switch (hI.stopType)
+	{
+	case hitInfo::stopReason::HIT:
+		return MATH::dvec4(1.0,0.0,0.0,0.0);
+	case hitInfo::stopReason::MISS:
+		return MATH::dvec4(0.1, 0.1, 0.1, 1.0);
+	case::hitInfo::stopReason::OUTOFSTEPS:
+		return MATH::dvec4(1.0, 0.0, 0.0, 1.0);
+	default:
+		return MATH::dvec4(1.0, 0.0, 1.0, 1.0);
+	}
 }
 
 void MandelBulbScene::update(const int Frame)
 {
-	cam->Position = { 0.0, 0.0, 5.0 };
+	cam->Position = { 1.0/30 * Frame, 0.0, -5.0/30 * Frame };
 	cam->Direction = MATH::unitVector(MATH::dvec3(0.0, 0.0, 1.0) - cam->Position);
 	cam->updateView();
 }
@@ -88,12 +98,14 @@ MATH::dvec4 MandelBulbScene::shade(const MATH::dvec3& p, const hitInfo& hI) cons
 
 void KochSnowFlakeScene::update(const int Frame)
 {
-
+	cam->Position = { 0.0, 0.0, 5.0 };
+	cam->Direction = MATH::unitVector(MATH::dvec3(0.0, 0.0, 1.0) - cam->Position);
+	cam->updateView();
 }
 
 double KochSnowFlakeScene::eval(const MATH::dvec3& p) const
 {
-	return 0.8;
+	return 0.1;
 }
 
 MATH::dvec3 KochSnowFlakeScene::grad(const MATH::dvec3& p) const

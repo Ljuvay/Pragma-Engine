@@ -17,13 +17,14 @@
 */
 
 #include "engine/engine.h"
-#include "math/linearAlgebra.h"
+#include "settings.h"
 
 int main()
 {
+	RenderSettings settings;
 	Engine g_Engine;
-	g_Engine.init();
-	g_Engine.run();
+	g_Engine.init(settings);
+	g_Engine.run(settings);
 	g_Engine.cleanup();
 
 	return 0;

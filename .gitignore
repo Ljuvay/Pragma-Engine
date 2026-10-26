@@ -1,3 +1,4 @@
 ## vs and build files
 .vs/
 out/
+/outputs/output.mp4

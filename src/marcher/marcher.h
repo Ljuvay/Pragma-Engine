@@ -6,19 +6,14 @@
 #include "math/linearAlgebra.h"
 #include "scene/scene.h"
 
-inline constexpr double DEFAULT_NEAR_PLANE{ 0.01 };
-inline constexpr double DEFAULT_FAR_PLANE{ 10.00 };
-inline constexpr double DEFAULT_EPSILON = 0.0001;
-inline constexpr int DEFAULT_MAXSTEPS = 500;
-
 namespace sdf
 {
 	struct Paramaters
 	{
-		double sNear = DEFAULT_NEAR_PLANE;
-		double sFar = DEFAULT_FAR_PLANE;
-		double epsilon = DEFAULT_EPSILON;
-		int maxSteps = DEFAULT_MAXSTEPS;
+		double sNear{};
+		double sFar{};
+		double epsilon{};
+		int maxSteps{};
 	};
 
 	struct Ray
@@ -33,13 +28,14 @@ namespace sdf
 	double distToSurface(const Ray& r, const Paramaters& p, const Scene& scene, hitInfo& info)
 	{
 		double depth{ p.sNear };
+		info.epsilon = p.epsilon;
+		info.maxSteps = p.maxSteps;
 		for (int i = 0; i < p.maxSteps; i++)
 		{
 				double dist{ scene.eval(r.origin + r.direction * depth) };
 				if (dist < p.epsilon) 
 				{ 
 					info.stopType = hitInfo::stopReason::HIT;
-					info.maxSteps = p.maxSteps;
 					info.steps = i;
 					return depth; 
 				}

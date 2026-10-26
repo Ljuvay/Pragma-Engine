@@ -5,13 +5,14 @@
 
 #include "renderer/renderer.h"
 #include "scene/sceneManager.h"
+#include "settings.h"
 
 class Engine
 {
 public:
 	Engine();
-	void init();
-	void run();
+	void init(const RenderSettings& rS);
+	void run(const RenderSettings& rS);
 	void cleanup();
 
 private:

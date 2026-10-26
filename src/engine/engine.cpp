@@ -5,18 +5,18 @@ Engine::Engine() {
 	m_Renderer = std::make_unique<Renderer>();
 }
 
-void Engine::init()
+void Engine::init(const RenderSettings& rS)
 {
 	m_SceneManager->init();
-	m_Renderer->init();
-	m_SceneManager->setScene("MandelBulbScene");
+	m_Renderer->init(rS);
+	m_SceneManager->setScene(rS.scene);
 }
 
-void Engine::run()
+void Engine::run(const RenderSettings& rS)
 {
-	for (int Frame{ 0 }; Frame < 60; Frame++) { //TEMPORARY FRAME LOOP, THE NUMBER OF FRAMES WILL LATER COME FROM SETTINGS
+	for (int Frame{ 0 }; Frame < rS.frameCount; Frame++) { //TEMPORARY FRAME LOOP, THE NUMBER OF FRAMES WILL LATER COME FROM SETTINGS
 		m_SceneManager->updateCurrentScene(Frame);
-		m_Renderer->renderFrame(*m_SceneManager->getCurrentScene(), Frame);
+		m_Renderer->renderFrame(rS, *m_SceneManager->getCurrentScene(), Frame);
 	}
 }
 
