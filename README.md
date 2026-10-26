@@ -1,19 +1,32 @@
-# SDF Fractal Raymarcher
+# Pragma Engine
 
-A small CPU-based signed distance field (SDF) renderer written in C++, focused on rendering 3D fractals through ray marching.
+A small, CPU-based rendering engine written in C++17, built around signed distance fields (SDFs), ray marching, and 3D fractal rendering.
 
-The initial implementation is intentionally simple, providing a foundation for experimenting with fractal distance functions and rendering techniques.
+**Status: Work in Progress**
+
+Pragma Engine is a personal graphics programming project exploring the foundations of a modular rendering system, with a focus on implicit geometry and procedural 3D fractals.
+
+## Render Gallery
+
+Current output from the renderer.
+
+| Sphere | Mandelbulb |
+| :---: | :---: |
+| ![Sphere render](renders/sphere.png) | ![Mandelbulb render](renders/MandelBulb.png) |
+
+*Current renders are unshaded. The renderer is under active development.*
 
 ## Features
 
-* CPU-based SDF ray marching
-* 3D fractal rendering
-* Scene and scene management
-* Custom minimal linear algebra library
-* Runtime settings through compiler flags
-* Lightweight logging namespace
-* CMake build system
-* tinyexr output
+- **CPU-Based Ray Marching** — Renders implicit geometry using signed distance functions.
+- **3D Fractal Rendering** — Supports experimentation with procedural fractal geometry, with the Mandelbulb as a current development target.
+- **Modular Engine Architecture** — Separates application logic, scene management, rendering, and ray marching into dedicated components.
+- **Custom Linear Algebra Library** — Implements custom vector types and mathematical operations for geometric calculations.
+- **Scene Management** — Uses dedicated scene and scene manager components to organize scene data and track the active scene.
+- **Configurable Rendering Settings** — Centralizes rendering parameters and supports command-line configuration.
+- **EXR Image Output** — Uses [TinyEXR](https://github.com/syoyo/tinyexr) to write rendered images in OpenEXR format.
+- **Logging Utilities** — Provides lightweight logging functionality for development and debugging.
+- **CMake Build System** — Uses CMake and CMake Presets for build configuration.
 
 ## Architecture
 
@@ -30,27 +43,44 @@ Main
  |         |
  |         +-- Marcher
  |
+ +-- Settings
+ |
  +-- Linear Algebra
  |
  +-- Logging
 ```
 
-* **Engine** - Coordinates the application and owns the SceneManager and Renderer.
-* **SceneManager** - Manages scenes and the currently selected scene.
-* **Scene** - Contains scene data used for rendering.
-* **Renderer** - Receives the selected scene from the Engine and handles rendering.
-* **Marcher** - Performs SDF ray marching and evaluates the scene.
-* **Linear Algebra** - Minimal custom vector and matrix library.
-* **Logging** - Lightweight logging utilities used throughout the project.
+### Components
 
-## Fractals
+| Component | Responsibility |
+|---|---|
+| `Engine` (`src/engine/`) | Coordinates application execution and connects scene management with rendering. |
+| `SceneManager` (`src/scene/`) | Manages scenes and tracks the currently selected scene. |
+| `Scene` (`src/scene/`) | Stores scene data used during rendering. |
+| `Renderer` (`src/renderer/`) | Coordinates the rendering process. |
+| `Marcher` (`src/marcher/`) | Performs ray marching and evaluates scene distance functions. |
+| `Linear Algebra` (`src/math/`) | Provides custom vector types and mathematical operations. |
+| `Settings` (`src/settings.h`) | Centralizes rendering configuration and command-line-controlled parameters. |
+| `Logging` (`src/logging/`) | Provides lightweight logging utilities. |
 
-The primary goal of the project is exploring 3D fractal rendering using signed distance fields. Fractal distance functions can describe complex geometry without traditional polygonal meshes, making them well suited to ray marching.
+## Technologies
+
+- **Language:** C++17
+- **Build System:** CMake
+- **Build Configuration:** CMake Presets
+- **Rendering:** CPU-based SDF ray marching
+- **Mathematics:** Custom linear algebra library
+- **Image Output:** [TinyEXR](https://github.com/syoyo/tinyexr) / OpenEXR
 
 ## Building
 
-Build instructions will be added as the project is finalized.
+Build instructions will be added as cross-platform testing progresses.
 
-## Output
+## Platform Support
 
-The renderer produces tinyexr images.
+- **Windows:** Tested.
+- **Linux:** Not yet tested.
+
+## Author
+
+Developed by [Ljuvay](https://github.com/Ljuvay).
