@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "marcher/marcher.h"
 #include "scene/scene.h"
 #include "math/linearAlgebra.h"
 
@@ -13,13 +12,12 @@ class Renderer
 public:
 	Renderer();
 	void init();
-	void renderFrame();
-	bool saveEXR(const float* rgb, int width, int height, const char* outfilename);
+	void renderFrame(const Scene& scene, const int Frame);
 
 private:
-	std::shared_ptr<Scene> m_Scene;
-	std::unique_ptr<Marcher> m_Marcher;
-	std::unique_ptr<std::vector<MATH::vec3f>> frameBuffer;
+	void outputFrame();
+
+	std::unique_ptr<std::vector<MATH::vec4<>>> frameBuffer;
 };
 
 #endif // !RENDERER_H

@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <cstdint>
 
 #include "scene.h"
 
@@ -16,16 +17,19 @@ public:
 	void init();
 
 	template<typename T>
-	const void registerScene(const std::string& sName);
+	void registerScene(const std::string& sName);
 
-	const void setScene(const std::string& sName);
+	void updateCurrentScene(const int Frame);
+
+	void setScene(const std::string& sName);
 
 	const bool findScene(const std::string& sName) const;
 
-	const std::shared_ptr<Scene> getCurrentScene() const;
+	const Scene* getCurrentScene() const;
 private:
 	std::unordered_map<std::string, std::shared_ptr<Scene>> m_Scenes;
 	std::shared_ptr<Scene> m_ActiveScene = nullptr;
+	uint32_t nextID{0};
 };
 
 #endif // !SCENEMANAGER_H

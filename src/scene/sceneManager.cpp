@@ -4,11 +4,11 @@ void SceneManager::init()
 {
 	registerScene<SphereScene>("SphereScene");
 	registerScene<MandelBulbScene>("MandelBulbScene");
-	registerScene<KochSnowFlakeScene>("KockSnowFlakeScene");
+	registerScene<KochSnowFlakeScene>("KochSnowFlakeScene");
 }
 
 template<typename T>
-const void SceneManager::registerScene(const std::string& sName)
+void SceneManager::registerScene(const std::string& sName)
 {
 	if (!findScene(sName)) {
 		m_Scenes[sName] = std::make_shared<T>();
@@ -19,7 +19,12 @@ const void SceneManager::registerScene(const std::string& sName)
 	}
 }
 
-const void SceneManager::setScene(const std::string& sName)
+void SceneManager::updateCurrentScene(const int Frame)
+{
+	m_ActiveScene->update(Frame);
+}
+
+void SceneManager::setScene(const std::string& sName)
 {
 	if (findScene(sName)) {
 		m_ActiveScene = m_Scenes[sName];
@@ -32,22 +37,18 @@ const void SceneManager::setScene(const std::string& sName)
 
 const bool SceneManager::findScene(const std::string& sName) const
 {
-	for (const auto& [key, value] : m_Scenes)
-	{
-		if (key == sName) return true;
-	}
-	return false;
+	return m_Scenes.contains(sName) ? true : false;
 }
 
-const std::shared_ptr<Scene> SceneManager::getCurrentScene() const
+const Scene* SceneManager::getCurrentScene() const
 {
 	if (m_ActiveScene != nullptr)
 	{
-		return m_ActiveScene;
+		return m_ActiveScene.get();
 	}
 	else
 	{
 		std::cerr << "ERROR: No active scene to fetch\n";
-		return m_ActiveScene;
+		return nullptr;
 	}
 }
