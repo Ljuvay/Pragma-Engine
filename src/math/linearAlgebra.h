@@ -226,13 +226,13 @@ namespace MATH
 	template<typename T>
 	inline constexpr T length(const vec2<T>& vec)
 	{
-		return std::sqrtl((vec.x * vec.x) + (vec.y * vec.y));
+		return std::sqrt((vec.x * vec.x) + (vec.y * vec.y));
 	}
 
 	template<typename T>
 	inline constexpr T length(const vec3<T>& vec)
 	{
-		return std::sqrtl((vec.x * vec.x) + (vec.y * vec.y) + (vec.z * vec.z));
+		return std::sqrt((vec.x * vec.x) + (vec.y * vec.y) + (vec.z * vec.z));
 	}
 
 	template<typename T>

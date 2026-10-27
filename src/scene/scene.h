@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include "math/linearAlgebra.h"
+#include "settings.h"
 
 inline constexpr MATH::dvec3 DEFAULT_CAM_POS{0.0, 0.0, 0.0};
 inline constexpr MATH::dvec3 DEFAULT_CAM_DIR{0.0, 0.0, 0.0};
@@ -13,7 +14,7 @@ inline constexpr double DEFAULT_ASPECT = static_cast<double>(DEFAULT_SCR_WIDTH) 
 
 inline MATH::dvec3 estimateNormal(MATH::dvec3 p, double epsilon)
 {
-	return MATH::normalize(p);
+	return MATH::normalize(p) * epsilon;
 }
 
 struct Camera
@@ -65,7 +66,7 @@ class Scene
 public:
 	Scene() { cam = std::make_shared<Camera>(); }
 	virtual ~Scene() = default;
-	virtual void update(const int Frame) = 0;
+	virtual void update(const RenderSettings& rS, const int Frame) = 0;
 
 	virtual double eval(const MATH::dvec3& p) const = 0;
 
@@ -80,7 +81,7 @@ protected:
 class SphereScene : public Scene
 {
 public:
-	void update(const int Frame) override;
+	void update(const RenderSettings& rS, const int Frame) override;
 	double eval(const MATH::dvec3& p) const override;
 	MATH::dvec3 grad(const MATH::dvec3& p) const;
 	MATH::dvec4 shade(const MATH::dvec3& p, const hitInfo& hI) const override;
@@ -89,16 +90,16 @@ public:
 class MandelBulbScene : public Scene
 {
 public:
-	void update(const int Frame) override;
+	void update(const RenderSettings& rS, const int Frame) override;
 	double eval(const MATH::dvec3& P) const override;
 	MATH::dvec3 grad(const MATH::dvec3& p) const;
 	MATH::dvec4 shade(const MATH::dvec3& p, const hitInfo& hI) const override;
 };
 
-class KochSnowFlakeScene : public Scene
+class FractalTowerScene : public Scene
 {
 public:
-	void update(const int Frame) override;
+	void update(const RenderSettings& rS, const int Frame) override;
 	double eval(const MATH::dvec3& P) const override;
 	MATH::dvec3 grad(const MATH::dvec3& p) const;
 	MATH::dvec4 shade(const MATH::dvec3& p, const hitInfo& hI) const override;

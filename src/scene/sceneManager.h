@@ -19,7 +19,7 @@ public:
 	template<typename T>
 	void registerScene(const std::string& sName);
 
-	void updateCurrentScene(const int Frame);
+	void updateCurrentScene(const RenderSettings& rS, const int Frame);
 
 	void setScene(const std::string& sName);
 

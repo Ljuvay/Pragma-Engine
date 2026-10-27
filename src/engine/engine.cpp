@@ -15,7 +15,7 @@ void Engine::init(const RenderSettings& rS)
 void Engine::run(const RenderSettings& rS)
 {
 	for (int Frame{ 0 }; Frame < rS.frameCount; Frame++) { //TEMPORARY FRAME LOOP, THE NUMBER OF FRAMES WILL LATER COME FROM SETTINGS
-		m_SceneManager->updateCurrentScene(Frame);
+		m_SceneManager->updateCurrentScene(rS, Frame);
 		m_Renderer->renderFrame(rS, *m_SceneManager->getCurrentScene(), Frame);
 	}
 }

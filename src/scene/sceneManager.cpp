@@ -4,7 +4,7 @@ void SceneManager::init()
 {
 	registerScene<SphereScene>("SphereScene");
 	registerScene<MandelBulbScene>("MandelBulbScene");
-	registerScene<KochSnowFlakeScene>("KochSnowFlakeScene");
+	registerScene<FractalTowerScene>("FractalTowerScene");
 }
 
 template<typename T>
@@ -19,9 +19,9 @@ void SceneManager::registerScene(const std::string& sName)
 	}
 }
 
-void SceneManager::updateCurrentScene(const int Frame)
+void SceneManager::updateCurrentScene(const RenderSettings& rS, const int Frame)
 {
-	m_ActiveScene->update(Frame);
+	m_ActiveScene->update(rS, Frame);
 }
 
 void SceneManager::setScene(const std::string& sName)
