@@ -30,6 +30,7 @@ void Engine::run(const RenderSettings& rS)
 
 void Engine::cleanup()
 {
-	m_SceneManager.release();
-	m_Renderer.release();
+	m_SceneManager.reset();
+	m_Renderer.reset();
+	m_Logger.reset();
 }
