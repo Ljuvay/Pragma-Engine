@@ -53,7 +53,6 @@ namespace LOGGING
 		}
 	}
 
-	//Outputting via io until file logs are made
 	inline void outputReadable(const std::string& lname, const double& time)
 	{
 		const long long total = static_cast<long long>(time);

@@ -3,10 +3,6 @@
 
 #include "scene/scene.h"
 
-/*
-Equations are implemented from jbaker.graphics/writings/DEC.html
-*/
-
 void SphereScene::update(const RenderSettings& rS, const int Frame)
 {
 	cam->Position = { 0.0, 0.0, 5.0 };
@@ -14,6 +10,7 @@ void SphereScene::update(const RenderSettings& rS, const int Frame)
 	cam->updateView();
 }
 
+//jbaker.graphics/writings/DEC.html
 double SphereScene::eval(const MATH::dvec3& p) const
 {
 	double r{ 1.0 }; // Radius
@@ -32,7 +29,7 @@ MATH::dvec4 SphereScene::shade(const MATH::dvec3& p, const hitInfo& hI) const
 	switch (hI.stopType)
 	{
 	case hitInfo::stopReason::HIT:
-		return MATH::dvec4(1.0,0.0,0.0,0.0);
+		return MATH::dvec4((1.0 / hI.maxSteps) * hI.steps * p.x, (1.0 / hI.maxSteps) * hI.steps * p.y, (1.0 / hI.maxSteps) * hI.steps, 1.0);
 	case hitInfo::stopReason::MISS:
 		return MATH::dvec4(0.1, 0.1, 0.1, 1.0);
 	case::hitInfo::stopReason::OUTOFSTEPS:
@@ -108,16 +105,14 @@ MATH::dvec4 MandelBulbScene::shade(const MATH::dvec3& p, const hitInfo& hI) cons
 
 void FractalTowerScene::update(const RenderSettings& rS, const int Frame)
 {
-	static int numRotation{ 3 };
+	static int numRotation{ 1 };
 	static double camRotationDistance{ 8.0 };
 	const double DegPerFrame = (360.0 * static_cast<double>(numRotation)) * static_cast<double>(Frame) / static_cast<double>(rS.frameCount);
 	const double Rotation = (180.0 + DegPerFrame) * MATH::PI / 180.0;
 
+	cam->Position = { camRotationDistance * std::sin(Rotation), 0.25 * Frame - 15.0, camRotationDistance * std::cos(Rotation) };
 
-	cam->Position = { camRotationDistance * std::sin(Rotation), 0.5 * Frame, camRotationDistance * std::cos(Rotation) };
-
-
-	cam->Direction = MATH::unitVector(MATH::dvec3(0.0, 0.0, 0.0) - cam->Position);
+	cam->Direction = MATH::unitVector(MATH::dvec3(0.0, cam->Position.y , 0.0) - cam->Position);
 
 	cam->updateView();
 }
@@ -151,7 +146,7 @@ MATH::dvec4 FractalTowerScene::shade(const MATH::dvec3& p, const hitInfo& hI) co
 	case hitInfo::stopReason::HIT:
 		return MATH::dvec4((1.0 / hI.maxSteps) * hI.steps, (1.0 / hI.maxSteps) * hI.steps, (1.0 / hI.maxSteps) * hI.steps, 1.0);
 	case hitInfo::stopReason::MISS:
-		return MATH::dvec4(0.1, 0.1, 0.1, 1.0);
+		return MATH::dvec4(0.69, 0.89, 0.98, 1.0);
 	case::hitInfo::stopReason::OUTOFSTEPS:
 		return MATH::dvec4(1.0, 0.0, 0.0, 1.0);
 	default:

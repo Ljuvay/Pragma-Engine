@@ -18,13 +18,12 @@ namespace sdf
 
 	struct Ray
 	{
-		MATH::dvec3 direction;
 		MATH::dvec3 origin;
+		MATH::dvec3 direction;
 		Ray(const MATH::dvec3& origin, const MATH::dvec3& direction)
 			: origin(origin), direction(direction) {}
 	};
 
-	// kawmekdma
 	double distToSurface(const Ray& r, const Paramaters& p, const Scene& scene, hitInfo& info)
 	{
 		double depth{ p.sNear };
@@ -50,15 +49,10 @@ namespace sdf
 		return p.sFar;
 	}
 
-	// gjnwjdcanwkdnk
 	inline MATH::dvec4 raymarchOnePixel(const Paramaters& p, const Ray& r, const Scene& scene)
 	{
 		hitInfo hit;
 		double dist = distToSurface(r, p, scene, hit);
-		/*if (dist > p.sFar - p.epsilon)
-		{
-			return MATH::dvec4(0.0,0.0,0.0,0.0);
-		}*/
 		return scene.shade(r.origin + r.direction * dist, hit);
 	}
 };

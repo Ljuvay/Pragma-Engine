@@ -12,10 +12,6 @@
 #include "tinyexr.h"
 #include "marcher/marcher.h"
 
-/*
-THIS WHOLE IMPLENTATION NEEDS TO HAVE SCREEN W/H SWAPPED IN FOR ACTUAL VALUES INSTEAD OF MAGIC NUMBERS
-*/
-
 Renderer::Renderer() {}
 
 void Renderer::init(const RenderSettings& rS)
@@ -27,10 +23,16 @@ void Renderer::renderFrame(const RenderSettings& rS, LOGGING::Logger& logger, co
 {
     renderTiles.clear();
     buildTiles(rS);
-    logger.createInstance("Scheduler_" + std::to_string(Frame));
+
+    if (rS.loggingOn) { logger.createInstance("Scheduler_" + std::to_string(Frame)); }
+
     rS.dynamicSchedule ? renderDynamic(rS, scene, Frame) : renderStatic(rS, scene, Frame);
-    logger.stopInstance("Scheduler_" + std::to_string(Frame));
-    logger.writeInstance("Scheduler_" + std::to_string(Frame));
+
+    if (rS.loggingOn) {
+        logger.stopInstance("Scheduler_" + std::to_string(Frame));
+        logger.writeInstance("Scheduler_" + std::to_string(Frame));
+    }
+
     outputFrame(rS, logger, Frame);
 }
 
@@ -115,7 +117,7 @@ void Renderer::buildTiles(const RenderSettings& rS)
     int height = { rS.outputHeight };
 
     int res = std::max(rS.tileRes, 1);
-    int TileW = width / res; // Res of 1 is just the full screen
+    int TileW = width / res;
     int TileH = height / res;
 
     for (int tx{}; tx < res; tx++) {
@@ -140,7 +142,7 @@ void Renderer::buildTiles(const RenderSettings& rS)
 
 void Renderer::outputFrame(const RenderSettings& rS, LOGGING::Logger& logger, const int Frame)
 {
-    logger.createInstance("Frame Out_" + std::to_string(Frame));
+    if (rS.loggingOn) { logger.createInstance("Frame Out_" + std::to_string(Frame)); }
     std::filesystem::path outputDIR = PROJECT_ROOT;
     outputDIR /= "outputs";
     outputDIR /= rS.outputName;
@@ -160,8 +162,10 @@ void Renderer::outputFrame(const RenderSettings& rS, LOGGING::Logger& logger, co
     }
     if (error != nullptr) { FreeEXRErrorMessage(error); }
     std::cout << std::filesystem::absolute(outputPath) << std::endl;
-    logger.stopInstance("Frame Out_" + std::to_string(Frame));
-    logger.writeInstance("Frame Out_" + std::to_string(Frame));
+    if (rS.loggingOn) {
+        logger.stopInstance("Frame Out_" + std::to_string(Frame));
+        logger.writeInstance("Frame Out_" + std::to_string(Frame));
+    }
 }
 
 uint16_t Renderer::determineThreadCount(const uint16_t inputThreads)

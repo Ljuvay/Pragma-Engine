@@ -11,7 +11,7 @@ inline constexpr double DEFAULT_NEAR_PLANE{ 0.01 };
 inline constexpr double DEFAULT_FAR_PLANE{ 100.00 };
 inline constexpr double DEFAULT_EPSILON{ 0.0001 };
 inline constexpr int DEFAULT_FRAME_COUNT{ 24 };
-inline constexpr int DEFAULT_MAXSTEPS{500};
+inline constexpr int DEFAULT_MAXSTEPS{2500};
 inline constexpr int DEFAULT_OUTPUT_WIDTH{ 1920 };
 inline constexpr int DEFAULT_THREAD_COUNT{ 1 };
 inline constexpr int DEFAULT_TILE_RES{ 16 }; //16x16 tiles

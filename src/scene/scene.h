@@ -14,6 +14,7 @@ inline constexpr int DEFAULT_SCR_HEIGHT{1080};
 inline constexpr double DEFAULT_CAM_FOV{60.0};
 inline constexpr double DEFAULT_ASPECT = static_cast<double>(DEFAULT_SCR_WIDTH) / static_cast<double>(DEFAULT_SCR_HEIGHT);
 
+// Unfinished
 inline MATH::dvec3 estimateNormal(MATH::dvec3 p, double epsilon)
 {
 	return MATH::normalize(p) * epsilon;
