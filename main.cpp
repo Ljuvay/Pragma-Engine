@@ -19,9 +19,9 @@
 #include "engine/engine.h"
 #include "settings.h"
 
-int main()
+int main(int argc, char** argv)
 {
-	RenderSettings settings;
+	RenderSettings settings(argc, argv);
 	Engine g_Engine;
 	g_Engine.init(settings);
 	g_Engine.run(settings);

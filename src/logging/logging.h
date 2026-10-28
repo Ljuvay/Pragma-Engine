@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <cstdint>
+#include <optional>
 #include <unordered_map>
 
 namespace LOGGING
@@ -14,7 +15,8 @@ namespace LOGGING
 	struct logInstance
 	{
 		std::string name = "";
-		std::chrono::steady_clock::time_point start;
+		std::optional<std::chrono::steady_clock::time_point> start = std::nullopt;
+		std::optional<std::chrono::steady_clock::time_point> stop = std::nullopt;
 	};
 
 	class Logger
@@ -33,7 +35,7 @@ namespace LOGGING
 	inline double mtoh(const double& m) { return m / 60.0; }
 
 	inline double timeDifference(const double& msBegin, const double& msEnd) { return msEnd - msBegin; }
-	inline void outputReadable(const double& time);
+	inline void outputReadable(const std::string& lname, const double& time);
 }
 
 #endif // !LOGGING_H

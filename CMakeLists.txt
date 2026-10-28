@@ -26,6 +26,10 @@ target_include_directories(RayMarchingFractals PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyexr
 )
 
+target_compile_definitions(RayMarchingFractals PRIVATE
+  PROJECT_ROOT="${CMAKE_SOURCE_DIR}"
+)
+
 set_target_properties(RayMarchingFractals PROPERTIES
   CXX_STANDARD 20
   CXX_STANDARD_REQUIRED ON

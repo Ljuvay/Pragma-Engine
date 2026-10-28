@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 #include <atomic>
+#include <filesystem>
 #include <algorithm>
 
 #include "math/linearAlgebra.h"
@@ -22,12 +23,15 @@ void Renderer::init(const RenderSettings& rS)
     frameBuffer = std::make_unique<std::vector<MATH::vec4<>>>(rS.outputWidth*rS.outputHeight); 
 }
 
-void Renderer::renderFrame(const RenderSettings& rS, const Scene& scene, const int Frame)
+void Renderer::renderFrame(const RenderSettings& rS, LOGGING::Logger& logger, const Scene& scene, const int Frame)
 {
     renderTiles.clear();
     buildTiles(rS);
+    logger.createInstance("Scheduler_" + std::to_string(Frame));
     rS.dynamicSchedule ? renderDynamic(rS, scene, Frame) : renderStatic(rS, scene, Frame);
-    outputFrame(rS, Frame);
+    logger.stopInstance("Scheduler_" + std::to_string(Frame));
+    logger.writeInstance("Scheduler_" + std::to_string(Frame));
+    outputFrame(rS, logger, Frame);
 }
 
 void Renderer::renderTile(const RenderSettings& rS, const Scene& scene, const int tileIdx)
@@ -134,14 +138,20 @@ void Renderer::buildTiles(const RenderSettings& rS)
     }
 }
 
-void Renderer::outputFrame(const RenderSettings& rS, const int Frame)
+void Renderer::outputFrame(const RenderSettings& rS, LOGGING::Logger& logger, const int Frame)
 {
-    std::cout << "Outputting Frame" << std::endl;
-    std::ostringstream frameName;
-    frameName << "../../../outputs/" << rS.outputName << "." << std::setw(4) << std::setfill('0') << Frame << ".exr";
+    logger.createInstance("Frame Out_" + std::to_string(Frame));
+    std::filesystem::path outputDIR = PROJECT_ROOT;
+    outputDIR /= "outputs";
+    outputDIR /= rS.outputName;
+    std::filesystem::create_directories(outputDIR);
+
+    std::ostringstream filename;
+    filename << rS.outputName << "." << std::setw(4) << std::setfill('0') << Frame << ".exr";
+    std::filesystem::path outputPath = outputDIR / filename.str();
 
     const char* error = nullptr;
-    int Save = SaveEXR(reinterpret_cast<const float*>(frameBuffer->data()), rS.outputWidth, rS.outputHeight, 4, 0, frameName.str().c_str(), &error);
+    int Save = SaveEXR(reinterpret_cast<const float*>(frameBuffer->data()), rS.outputWidth, rS.outputHeight, 4, 0, outputPath.string().c_str(), &error);
     if (Save < 0) {
         std::cerr << "ERROR SAVING EXR\n";
         if (error != nullptr) {
@@ -149,7 +159,9 @@ void Renderer::outputFrame(const RenderSettings& rS, const int Frame)
         }
     }
     if (error != nullptr) { FreeEXRErrorMessage(error); }
-    std::cout << "Image output\n";
+    std::cout << std::filesystem::absolute(outputPath) << std::endl;
+    logger.stopInstance("Frame Out_" + std::to_string(Frame));
+    logger.writeInstance("Frame Out_" + std::to_string(Frame));
 }
 
 uint16_t Renderer::determineThreadCount(const uint16_t inputThreads)

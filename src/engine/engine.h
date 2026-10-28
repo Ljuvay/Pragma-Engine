@@ -5,6 +5,7 @@
 
 #include "renderer/renderer.h"
 #include "scene/sceneManager.h"
+#include "logging/logging.h"
 #include "settings.h"
 
 class Engine
@@ -16,6 +17,7 @@ public:
 	void cleanup();
 
 private:
+	std::unique_ptr<LOGGING::Logger> m_Logger = nullptr;
 	std::unique_ptr<SceneManager> m_SceneManager = nullptr;
 	std::unique_ptr<Renderer> m_Renderer = nullptr;
 };

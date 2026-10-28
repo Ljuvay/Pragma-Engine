@@ -6,6 +6,7 @@
 
 #include "scene/scene.h"
 #include "math/linearAlgebra.h"
+#include "logging/logging.h"
 #include "settings.h"
 
 struct Tile
@@ -19,7 +20,7 @@ class Renderer
 public:
 	Renderer();
 	void init(const RenderSettings& rS);
-	void renderFrame(const RenderSettings& rS, const Scene& scene, const int Frame);
+	void renderFrame(const RenderSettings& rS, LOGGING::Logger& logger, const Scene& scene, const int Frame);
 	void renderTile(const RenderSettings& rS, const Scene& scene, const int tileIdx);
 
 	void renderStatic(const RenderSettings& rS, const Scene& scene, const int Frame);
@@ -28,7 +29,7 @@ public:
 private:
 	void buildTiles(const RenderSettings& rS);
 
-	void outputFrame(const RenderSettings& rS, const int Frame);
+	void outputFrame(const RenderSettings& rS, LOGGING::Logger& logger, const int Frame);
 
 	static uint16_t determineThreadCount(const uint16_t inputThreads);
 

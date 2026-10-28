@@ -3,6 +3,7 @@
 Engine::Engine() {
 	m_SceneManager = std::make_unique<SceneManager>();
 	m_Renderer = std::make_unique<Renderer>();
+	m_Logger = std::make_unique<LOGGING::Logger>();
 }
 
 void Engine::init(const RenderSettings& rS)
@@ -14,9 +15,16 @@ void Engine::init(const RenderSettings& rS)
 
 void Engine::run(const RenderSettings& rS)
 {
-	for (int Frame{ 0 }; Frame < rS.frameCount; Frame++) { //TEMPORARY FRAME LOOP, THE NUMBER OF FRAMES WILL LATER COME FROM SETTINGS
+	if(rS.loggingOn == true) m_Logger->createInstance("Entire Render");
+
+	for (int Frame{ 0 }; Frame < rS.frameCount; Frame++) { 
 		m_SceneManager->updateCurrentScene(rS, Frame);
-		m_Renderer->renderFrame(rS, *m_SceneManager->getCurrentScene(), Frame);
+		m_Renderer->renderFrame(rS, *m_Logger.get(), *m_SceneManager->getCurrentScene(), Frame);
+	}
+
+	if (rS.loggingOn == true) {
+		m_Logger->stopInstance("Entire Render");
+		m_Logger->writeInstance("Entire Render");
 	}
 }
 

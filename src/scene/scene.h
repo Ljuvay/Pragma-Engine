@@ -1,6 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <memory>
+
 #include "math/linearAlgebra.h"
 #include "settings.h"
 
@@ -24,7 +26,6 @@ struct Camera
 		axis_view = MATH::unitVector(Direction);
 		axis_up = MATH::unitVector(UpVector - axis_view * MATH::dot(UpVector, axis_view));
 		axis_right = MATH::unitVector(MATH::cross(axis_view, axis_up));
-		std::cout << axis_view << axis_up << axis_right;
 
 		htanfov = std::tan(FOV * 0.5 * MATH::PI / 180.0);
 		vtanfov = htanfov / DEFAULT_ASPECT;
