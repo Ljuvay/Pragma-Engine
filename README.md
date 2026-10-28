@@ -36,7 +36,7 @@ The sphere scene demonstrates basic SDF surface rendering without surface lighti
 - **Dynamic Scheduling:** Workers claim the next available tile using an atomic counter.
 - **Configurable Rendering:** Adjust image resolution, frame count, ray-marching parameters, thread count, and tile-grid resolution through command-line arguments.
 - **Animated Rendering:** Supports rendering scenes across multiple frames.
-- **EXR Output:** Writes rendered frames as OpenEXR images.
+- **EXR Output:** Writes rendered frames as EXR images.
 - **Runtime Logging:** Measures scheduler and frame-output durations.
 - **Modular Architecture:** Separates scene evaluation, ray marching, rendering, scheduling, and engine management.
 
@@ -97,7 +97,7 @@ Main
         ├── Worker Threads
         ├── Ray Marcher
         └── Frame Buffer
-            └── OpenEXR Output
+            └── EXR Output
 ```
 
 ### Core Components
@@ -117,7 +117,7 @@ Main
 - **C++20**
 - **CMake**
 - **C++ Standard Library Threads**
-- **TinyEXR** for OpenEXR output
+- **TinyEXR** for EXR output
 
 ## Tested Environments
 
@@ -211,7 +211,7 @@ Customize output resolution and frame count:
 
 ## Output
 
-Rendered frames are written as numbered OpenEXR files:
+Rendered frames are written as numbered EXR files:
 
 ```text
 outputs/
