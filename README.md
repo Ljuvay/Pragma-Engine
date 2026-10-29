@@ -10,13 +10,13 @@ Developed as an alternative project for **CPSC 3220: Operating Systems** at Clem
 
 ![Mandelbulb render](renders/MandelBulbColor.png)
 
-[Watch Mandelbulb Animation](renders/MandelBulb.mp4)
+[Watch Mandelbulb Animation](https://youtu.be/9kWrbisHZGk)
 
 ### Fractal Tower
 
 ![Fractal Tower render](renders/FractalTowerColor.png)
 
-[Watch Fractal Tower Animation](renders/FractalTower.mp4)
+[Watch Fractal Tower Animation](https://youtu.be/TRJZj_DH--o)
 
 Both fractal scenes use **depth-based shading** derived from ray-marching step counts rather than traditional lighting.
 
