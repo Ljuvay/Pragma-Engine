@@ -1,8 +1,6 @@
 # Pragma Engine
 
-A CPU-based rendering engine built around signed distance field (SDF) ray marching, procedural fractals, and multithreaded tile-based rendering.
-
-Developed as an alternative project for **CPSC 3220: Operating Systems** at Clemson University, this project explores CPU parallelism through tile-based rendering, static and dynamic work scheduling, and runtime comparisons across different worker counts.
+A CPU ray marcher I built for CPSC 3220 (Operating Systems) at Clemson. It renders signed distance field (SDF) scenes, including a Mandelbulb, and splits each frame into tiles that worker threads render in parallel. The main goal was to compare two ways of handing out that work, static and dynamic scheduling, and see how each scales with thread count.
 
 ## Renders
 
@@ -18,66 +16,78 @@ Developed as an alternative project for **CPSC 3220: Operating Systems** at Clem
 
 [Watch Fractal Tower Animation](https://youtu.be/TRJZj_DH--o)
 
-Both fractal scenes use **depth-based shading** derived from ray-marching step counts rather than traditional lighting.
+Both fractals are shaded by how many steps the ray took, not by real lighting.
 
 ### Sphere
 
 ![Sphere render](renders/sphere.png)
 
-The sphere scene demonstrates basic SDF surface rendering without surface lighting.
+A plain SDF sphere with no surface lighting. I used it to check that the marcher and camera worked before adding the fractals.
 
-## Features
+## What it does
 
-- **CPU Ray Marching:** Renders procedural scenes using signed distance functions.
-- **Procedural Fractals:** Includes a Mandelbulb and a Fractal Tower, alongside a sphere scene.
-- **Tile-Based Rendering:** Divides the image into tiles for independent processing.
-- **Multithreaded Execution:** Configurable worker count using the C++ standard threading library.
-- **Static Scheduling:** Assigns tiles to workers using a strided distribution.
-- **Dynamic Scheduling:** Workers claim the next available tile using an atomic counter.
-- **Configurable Rendering:** Adjust image resolution, frame count, ray-marching parameters, thread count, and tile-grid resolution through command-line arguments.
-- **Animated Rendering:** Supports rendering scenes across multiple frames.
-- **EXR Output:** Writes rendered frames as EXR images.
-- **Runtime Logging:** Measures scheduler and frame-output durations.
-- **Modular Architecture:** Separates scene evaluation, ray marching, rendering, scheduling, and engine management.
+- Ray marches procedural scenes using signed distance functions
+- Includes a Mandelbulb, a Fractal Tower, and a sphere
+- Splits each frame into tiles that can be rendered independently
+- Runs on a configurable number of worker threads (C++ standard threads)
+- Static scheduling: each worker gets a fixed, strided set of tiles
+- Dynamic scheduling: workers claim the next tile from a shared atomic counter
+- Lets you set resolution, frame count, marching parameters, thread count, and tile grid from the command line
+- Renders multi-frame animations and writes each frame as an EXR
+- Logs how long the scheduler and the frame output take
 
 ## Shading
 
-Pragma Engine uses depth-based shading rather than physically based lighting. Surface colors are determined by ray-marching step counts and, for some scenes, hit position.
+There's no physically based lighting here. Color comes from the ray-marching step count and, in some scenes, the hit position.
 
-- **Mandelbulb:** Uses ray-marching depth and hit position to produce color variation.
-- **Fractal Tower:** Uses grayscale shading based on ray-marching depth.
-- **Sphere:** Displays a basic red SDF sphere without surface lighting.
-- **Misses:** Each scene defines its own background color.
-- **Maximum-step exhaustion:** Rays that reach the maximum iteration count without hitting a surface are displayed in red.
+- **Mandelbulb:** step count and hit position drive the color.
+- **Fractal Tower:** grayscale based on step count.
+- **Sphere:** flat red, no lighting.
+- **Misses:** each scene picks its own background color.
+- **Out of steps:** rays that use up the maximum steps without hitting anything show up red.
 
-This approach provides visual depth cues while keeping the shading implementation focused on the ray marcher itself.
+## Parallel rendering
 
-## Parallel Rendering
+Each frame is cut into a grid of tiles, and the worker threads render them.
 
-Rendering is divided into a configurable grid of tiles that can be processed by multiple worker threads.
+**Static scheduling.** Each worker takes a strided sequence of tile indices, decided up front. It's simple and has almost no overhead, but if one worker's tiles are more expensive than another's, the cheap workers finish early and wait.
 
-### Static Scheduling
+**Dynamic scheduling.** Workers grab the next unclaimed tile from an atomic counter and keep going until none are left. Workers that finish early just take more tiles.
 
-Each worker processes a strided sequence of tile indices. Work assignment is determined by the scheduler, and workers render their assigned tiles independently.
+Both schedulers use the same marcher and the same scenes, so the comparison is fair.
 
-### Dynamic Scheduling
+## Benchmarks
 
-Workers use an atomic counter to claim tiles as they become available. Each worker continues processing until all tiles have been claimed.
+Times are wall-clock for the full render loop in a Release build, and they include the per-frame EXR write. Each number is the mean of 3 runs. Speedup is measured against 1 thread, and efficiency is speedup divided by thread count.
 
-Both schedulers use the same underlying ray marcher and scene implementation, allowing their performance to be compared under equivalent rendering settings.
+### Desktop: AMD Ryzen 7 9800X3D
 
-### Preliminary Benchmark
+| Threads | Schedule | Mean (s) | Speedup | Efficiency |
+|---:|---|---:|---:|---:|
+| 1 | Static | 171.33 | 1.00x | 100% |
+| 4 | Static | 49.70 | 3.45x | 86% |
+| 4 | Dynamic | 48.60 | 3.53x | 88% |
+| 8 | Static | 34.43 | 4.98x | 62% |
+| 8 | Dynamic | 29.30 | 5.85x | 73% |
 
-Preliminary testing was performed on Clemson's Ada4 computing environment using full application runtime.
+### Laptop: Intel Core i7-12800H (hybrid, 20 hardware threads)
 
-| Configuration | Total runtime |
-|---|---:|
-| 1 thread, static scheduling | 195.443 s |
-| 3 threads, static scheduling | 80.738 s |
+| Threads | Schedule | Mean (s) | Speedup | Efficiency |
+|---:|---|---:|---:|---:|
+| 1 | Static | 349.59 | 1.00x | 100% |
+| 4 | Static | 101.76 | 3.44x | 86% |
+| 4 | Dynamic | 99.18 | 3.52x | 88% |
+| 8 | Static | 76.56 | 4.57x | 57% |
+| 8 | Dynamic | 64.57 | 5.41x | 68% |
 
-Increasing the worker count from one to three achieved an observed **2.42× speedup**, reducing total runtime by approximately **58.7%**.
+### What I saw
 
-These results are preliminary measurements from one run per configuration. Both runs used static scheduling, so the comparison examines the effect of increasing the worker count under the tested conditions.
+- Every 4- and 8-thread run passes 3x.
+- Dynamic won on both machines, and the gap got bigger from 4 to 8 threads. Mandelbulb tiles vary a lot in cost, so letting early finishers pick up more work pays off.
+- Efficiency drops at 8 threads. The EXR write for each frame is serial, and shared resources like memory bandwidth and clock speed probably add to it. On the laptop, the mix of fast and slow cores likely matters too. I didn't isolate any of these.
+- Setting CPU affinity might help on the laptop. I haven't tried it.
+
+My first test, a single run on Clemson's Ada4 machines, gave 195.443 s on 1 thread vs 80.738 s on 3 threads (both static), about a 2.42x speedup.
 
 ## Architecture
 
@@ -100,33 +110,32 @@ Main
             └── EXR Output
 ```
 
-### Core Components
-
-| Component | Responsibility |
+| Component | What it does |
 |---|---|
-| `Engine` | Coordinates application execution and frame rendering. |
-| `SceneManager` | Manages the active rendering scene. |
-| `Scene` | Defines SDF evaluation, shading, and camera behavior. |
-| `Renderer` | Builds tiles, schedules work, and manages the frame buffer. |
-| `RayMarcher` | Traces rays and evaluates their intersections with SDF surfaces. |
-| `Math` | Provides custom linear algebra utilities. |
+| `Engine` | Runs the application and drives frame rendering. |
+| `SceneManager` | Holds the active scene. |
+| `Scene` | Defines the SDF, the shading, and the camera. |
+| `Renderer` | Builds tiles, hands out work, and owns the frame buffer. All the threading code is in `src/renderer/renderer.cpp`. |
+| `RayMarcher` | Marches rays and checks them against the SDF. |
+| `Math` | My own small linear algebra helpers. |
 | `Logging` | Records scheduler and frame-output timings. |
 
-## Built With
+## Built with
 
-- **C++20**
-- **CMake**
-- **C++ Standard Library Threads**
-- **TinyEXR** for EXR output
+- C++20
+- CMake
+- C++ standard library threads
+- TinyEXR for EXR output
 
-## Tested Environments
+## Tested on
 
-- Windows — Microsoft Visual Studio 2022
-- Linux — Clemson Ada4
+- Windows 11, Visual Studio 2022
+- Windows 11 with WSL (where the benchmarks were run)
+- Linux, Clemson Ada4 (early testing)
 
-## Building and Running
+## Building and running
 
-### Linux
+### Linux / WSL
 
 From the project root:
 
@@ -137,65 +146,62 @@ cmake ..
 make
 ```
 
-Run the executable from the build directory:
+Then run it from the build directory:
 
 ```bash
 ./RayMarchingFractals
 ```
 
-Enable runtime logging:
-
-```bash
-./RayMarchingFractals -logging
-```
+On single-config generators like Make, CMake defaults to a Release build.
 
 ### Windows
 
-The project can be configured and built using CMake with Microsoft Visual Studio 2022.
+Open the folder in Visual Studio 2022 and build the Release configuration. CMake handles the rest.
 
-## Command-Line Options
+## Command-line options
 
-All options are optional and use the defaults listed below.
+Everything is optional. Defaults are below.
 
-| Argument | Default | Description |
+| Argument | Default | What it does |
 |---|---|---|
-| `-w` | `1920` | Output image width. |
-| `-h` | `1080` | Output image height. |
-| `-fName` | `output` | Output directory and filename prefix. |
-| `-scene` | `MandelBulbScene` | Scene to render. |
-| `-frames` | `24` | Number of frames to render. |
-| `-steps` | `2500` | Maximum ray-marching steps. |
-| `-near` | `0.01` | Near ray-marching distance. |
-| `-far` | `100` | Maximum ray-marching distance. |
-| `-epsilon` | `0.0001` | Surface-hit tolerance. |
-| `-threads` | `1` | Number of worker threads. |
-| `-tres` | `16` | Tile-grid resolution per dimension. |
-| `-dynamic` | Disabled | Enables dynamic tile scheduling. |
-| `-logging` | Disabled | Enables runtime timing logs. |
+| `-w` | `1920` | Output image width |
+| `-h` | `1080` | Output image height |
+| `-fName` | `output` | Output folder and filename prefix |
+| `-scene` | `MandelBulbScene` | Which scene to render |
+| `-frames` | `24` | Number of frames |
+| `-steps` | `2500` | Maximum marching steps |
+| `-near` | `0.01` | Near marching distance |
+| `-far` | `100` | Maximum marching distance |
+| `-epsilon` | `0.0001` | Surface-hit tolerance |
+| `-threads` | `1` | Number of worker threads |
+| `-tres` | `16` | Tile grid resolution per dimension |
+| `-dynamic` | off | Use dynamic tile scheduling |
+| `-logging` | off | Print timing logs |
 
-The tile-grid resolution determines the number of tiles per dimension. For example, `-tres 16` creates up to 256 tiles.
+`-tres 16` makes a 16 by 16 grid, so up to 256 tiles.
 
 ### Examples
 
-Render with three worker threads using static scheduling:
+Static scheduling with 3 threads:
 
 ```bash
 ./RayMarchingFractals -threads 3
 ```
 
-Render with three worker threads using dynamic scheduling:
+Dynamic scheduling with 3 threads:
 
 ```bash
 ./RayMarchingFractals -threads 3 -dynamic
 ```
 
-Enable runtime logging:
+The 8-thread benchmark configurations:
 
 ```bash
-./RayMarchingFractals -logging
+./RayMarchingFractals -threads 8 -logging
+./RayMarchingFractals -threads 8 -dynamic -logging
 ```
 
-Select a scene using the `-scene` argument:
+Pick a scene:
 
 ```bash
 ./RayMarchingFractals -scene SphereScene
@@ -203,7 +209,7 @@ Select a scene using the `-scene` argument:
 ./RayMarchingFractals -scene FractalTowerScene
 ```
 
-Customize output resolution and frame count:
+Change the resolution and frame count:
 
 ```bash
 ./RayMarchingFractals -w 1920 -h 1080 -frames 24
@@ -211,7 +217,7 @@ Customize output resolution and frame count:
 
 ## Output
 
-Rendered frames are written as numbered EXR files:
+Frames are written as numbered EXR files:
 
 ```text
 outputs/
@@ -221,9 +227,9 @@ outputs/
     └── ...
 ```
 
-The `outputs/exr_to_mp4.py` helper script can convert a sequence of rendered EXR frames into a video.
+`outputs/exr_to_mp4.py` turns a sequence of EXR frames into a video.
 
-## Project Structure
+## Project structure
 
 ```text
 Pragma-Engine/
